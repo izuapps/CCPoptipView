@@ -1,33 +1,22 @@
-CMPopTipView
+CCPoptipView
 ============
 
-An iOS UIView subclass that displays a rounded rect "bubble", containing
-a text message, pointing at a specified button or view.
+CCPoptipView is a heavily modified version of Chris Miles's library,
+CMPopTipView. It has several new features and improvements, and its
+code is substantially cleaned up.
 
-A CMPopTipView will automatically position itself within the view so that
-it is pointing at the specified button or view, positioning the "pointer"
-as necessary.
+Extra Features:
 
-A CMPopTipView can be pointed at any UIView within the containing view.
-It can also be pointed at a UIBarButtonItem within either a UINavigationBar
-or a UIToolbar and it will automatically position itself to point at the
-target.
+- Automatically manages a FIFO queue of poptips to present, making the
+  presentation of multiple poptips in a row much simpler
+- Built-in support for keeping track of which poptips have been presented before, so as to not show them again; just set the -poptipID property on your CCPoptipView, and then later use +poptipHasBeenPresentedWithID: to check if a poptip has been presented in the past with that same ID. The info is stored in a file called PoptipHistory.plist in your app's Documents directory.
+- Poptips are now automatically retained and released for you; you don't need to keep a reference to poptips you're displaying
+- Removed rarely used "slide" animation option
+- Support for iOS 7 parallax effects
 
-The background and text colors can be customised if the defaults are not
-suitable.
+Known bugs:
 
-Two animation options are available for when a CMPopTipView is presented:
-"slide" and "pop".
-
-A CMPopTipView can be dismissed by the user tapping on it.  It can also
-be dismissed programatically.
-
-CMPopTipView is rendered entirely by Core Graphics.
-
-The source includes a universal (iPhone/iPad) demo app.
-
-一个泡泡风格的提示框开源控件, 继承自UIView。iPad,iPhone通用
-
+- On iPad, poptips presented from UIBarButtonItems often don't point to the right spot. I'm not sure how to fix this, since CCPoptipView uses a sneaky, undocumented way to get ahold of the view for the bar button item. Don't worry, though; it's App Store-safe. It seems to work fine on iPhone and iPod touch.
 
 URLs
 ----
@@ -37,10 +26,8 @@ URLs
  * http://chrismiles-tech.blogspot.com/2011/05/cmpoptipview-new-animation-option.html
 
 Used in apps:
- * River Level http://itunes.apple.com/au/app/river-level/id356158594?mt=8
- * The Happiest Hour http://itunes.apple.com/au/app/the-happiest-hour/id414453120?mt=8
- * I-Sea http://www.i-sea.no/
- * *Many many more apps*
+ * Wikigeek
+ * Zadachi
  * *Your app here ...?*
 
 
@@ -54,29 +41,21 @@ Screenshots
 .. |ipad_demo_1| image:: http://farm6.static.flickr.com/5170/5266199718_4720c56384.jpg
 
 
-Videos
-------
-
-http://www.youtube.com/watch?v=nul9VA_QsGI
-
-
 Usage
 -----
 
 Example 1 - point at a UIBarButtonItem in a nav bar::
 
-  // Present a CMPopTipView pointing at a UIBarButtonItem in the nav bar
-  CMPopTipView *navBarLeftButtonPopTipView = [[[CMPopTipView alloc] initWithMessage:@"A Message"] autorelease];
-  navBarLeftButtonPopTipView.delegate = self;
-  [navBarLeftButtonPopTipView presentPointingAtBarButtonItem:self.navigationItem.leftBarButtonItem animated:YES];
-  
-  // Dismiss a CMPopTipView
-  [navBarLeftButtonPopTipView dismissAnimated:YES];
-  
-  // CMPopTipViewDelegate method
-  - (void)popTipViewWasDismissedByUser:(CMPopTipView *)popTipView {
+  // Present a CCPoptipView pointing at a UIBarButtonItem in the nav bar
+  CCPoptipView *poptip = [[CCPoptipView alloc] initWithMessage:@"A Message"];
+  poptip.dismissalBlock = ^(CCPoptipView *poptip) {
     // Any cleanup code, such as releasing a CMPopTipView instance variable, if necessary
-  }
+  };
+  poptip.targetObject = self.navigationItem.leftBarButtonItem;
+  [poptop presentAnimated:YES];
+  
+  // Dismiss a CCPoptipView
+  [poptip dismissAnimated:YES];
 
 
 Example 2 - pointing at a UIButton, with custom color scheme::
@@ -84,13 +63,13 @@ Example 2 - pointing at a UIButton, with custom color scheme::
   - (IBAction)buttonAction:(id)sender {
     // Toggle popTipView when a standard UIButton is pressed
     if (nil == self.roundRectButtonPopTipView) {
-      self.roundRectButtonPopTipView = [[[CMPopTipView alloc] initWithMessage:@"My message"] autorelease];
-      self.roundRectButtonPopTipView.delegate = self;
-      self.roundRectButtonPopTipView.backgroundColor = [UIColor lightGrayColor];
-      self.roundRectButtonPopTipView.textColor = [UIColor darkTextColor];
-
-      UIButton *button = (UIButton *)sender;
-      [self.roundRectButtonPopTipView presentPointingAtView:button inView:self.view animated:YES];
+      CCPoptipView *poptip = [[CCPoptipView alloc] initWithMessage:@"My message"];
+      poptip.backgroundColor = [UIColor lightGrayColor];
+      poptip.targetObject = sender;
+      poptip.textColor = [UIColor darkTextColor];
+      
+      self.roundRectButtonPopTipView = poptip;
+      [poptip presentanimated:YES];
     }
     else {
       // Dismiss
@@ -99,30 +78,16 @@ Example 2 - pointing at a UIButton, with custom color scheme::
     }
   }
 
-  #pragma mark CMPopTipViewDelegate methods
-  - (void)popTipViewWasDismissedByUser:(CMPopTipView *)popTipView {
-    // User can tap CMPopTipView to dismiss it
-    self.roundRectButtonPopTipView = nil;
-  }
-
-
-ARC
----
-
-The CMPopTipView Master branch uses ARC as of version 2.0.
-
-If you want a non-ARC version you should look at tag 1.3.0.
-
 
 Support
 -------
 
-CMPopTipView is provided open source with no warranty and no guarantee
+CCPoptipView is provided open source with no warranty and no guarantee
 of support. However, best effort is made to address issues raised on Github
-https://github.com/chrismiles/CMPopTipView/issues .
+https://github.com/valsyrie/CCPoptipView/issues .
 
-If you would like assistance with integrating CMPopTipView or modifying
-it for your needs, contact the author Chris Miles <miles.chris@gmail.com> for consulting
+If you would like assistance with integrating CCPoptipView or modifying
+it for your needs, contact the author Colin Chivers <izuapps@gmail.com> for consulting
 opportunities.
 
 
