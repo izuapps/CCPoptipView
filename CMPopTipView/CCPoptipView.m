@@ -308,7 +308,10 @@ static NSUInteger	_poptipSuppressionCount = 0;
 	
 	if ([_poptipID length]) {
 		[_poptipHistory addObject:_poptipID];
-		CCSavePropertyListWithName([_poptipHistory allObjects], @"PoptipHistory");
+		
+		NSString *path = _CCPoptipViewGetHistoryPath();
+		NSData *data = [NSPropertyListSerialization dataWithPropertyList:path format:NSPropertyListBinaryFormat_v1_0 options:0 error:nil];
+		[data writeToFile:path atomically:YES];
 	}
 	
 	[_poptipQueue addObject:self];
