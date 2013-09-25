@@ -2,17 +2,16 @@ CCPoptipView
 ============
 
 CCPoptipView is a heavily modified version of Chris Miles's library,
-CMPopTipView. It has several new features and improvements, and its
-code is substantially cleaned up.
+CMPopTipView. It has several new features and improvements.
 
 Extra Features:
 
-- Automatically manages a FIFO queue of poptips to present, making the
-  presentation of multiple poptips in a row much simpler
+- Automatically manages a FIFO queue of poptips to present, making the presentation of multiple poptips in a row much simpler
 - Built-in support for keeping track of which poptips have been presented before, so as to not show them again; just set the -poptipID property on your CCPoptipView, and then later use +poptipHasBeenPresentedWithID: to check if a poptip has been presented in the past with that same ID. The info is stored in a file called PoptipHistory.plist in your app's Documents directory.
 - Poptips are now automatically retained and released for you; you don't need to keep a reference to poptips you're displaying
 - Removed rarely used "slide" animation option
 - Support for iOS 7 parallax effects
+- You can use the -beginSuppressingPoptips and -endSuppressingPoptips methods to temporarily stop the presentation of poptips. This is helpful, for example, when presenting an alert view or action sheet. Calls to these methods are nestable.
 
 Known bugs:
 
@@ -77,18 +76,6 @@ Example 2 - pointing at a UIButton, with custom color scheme::
       self.roundRectButtonPopTipView = nil;
     }
   }
-
-
-Support
--------
-
-CCPoptipView is provided open source with no warranty and no guarantee
-of support. However, best effort is made to address issues raised on Github
-https://github.com/valsyrie/CCPoptipView/issues .
-
-If you would like assistance with integrating CCPoptipView or modifying
-it for your needs, contact the author Colin Chivers <izuapps@gmail.com> for consulting
-opportunities.
 
 
 License
